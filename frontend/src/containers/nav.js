@@ -22,7 +22,7 @@ export function Nav( ) {
                         </div>
                     </div>
                 <div className="relative p-1 flex items-center justify-end w-1/4 ml-5 mr-4 sm:mr-0 sm:right-auto">
-                    <a href="#" className="block relative">
+                    <a className="block relative">
                         <img alt="profil" src="/images/person/1.jpg" className="mx-auto object-cover rounded-full h-10 w-10 "/>
                     </a>
                 </div>

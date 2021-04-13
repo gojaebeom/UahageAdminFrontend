@@ -1,36 +1,48 @@
-import { Aside } from "./containers/aside/aside";
-import { Content } from "./containers/content/content";
-import { Nav } from "./containers/nav/nav";
+import React from "react";
 import { Switch, Route } from "react-router-dom";
+import DefaultLayout from "./layouts/default";
+import ErrorLayout from "./layouts/error";
+import DashboardPage from "./pages/dashboard";
+import LoginPage from "./pages/login";
+import Image404 from "./assets/404.svg";
+import SignLayout from "./layouts/sign";
 
 function App( ) {
   return (
   <div className="App">
-    <main className="bg-gray-100 dark:bg-gray-800 rounded-2xl relative h-screen overflow-hidden relative">
-        <div className="flex items-start justify-between">
-          <Aside />
-          <div className="flex flex-col w-full pl-0 md:p-4 md:space-y-4">
-            <Nav />
-            <div className="overflow-auto h-screen pb-24 pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0">
-              <Switch>
-                <Route exact path="/">
-                  <Content />
-                </Route>
-                <Route path="/users">
-                  유저 관리
-                </Route>
-                <Route path="/spaces">
-                  유아 관련 장소 관리
-                </Route>
-                <Route path="/banners">
-                  배너 관리
-                </Route>
-              </Switch>
-            </div>
-            
-          </div>
-        </div>
-    </main>
+    <Switch>
+      <Route exact path="/login">
+        <SignLayout>
+          <LoginPage />
+        </SignLayout>
+      </Route>
+      <Route exact path="/">
+        <DefaultLayout>
+          <DashboardPage />
+        </DefaultLayout>
+      </Route>
+      <Route path="/users">
+        <DefaultLayout>
+          유저관리
+        </DefaultLayout>
+      </Route>
+      <Route path="/spaces">
+        <DefaultLayout>
+          장소 관리
+        </DefaultLayout>
+      </Route>
+      <Route path="/banners">
+        <DefaultLayout>
+          크롤링
+        </DefaultLayout>
+      </Route>
+      <Route path="/*">
+        <ErrorLayout 
+          imagePath={Image404} 
+          errorType="404"
+        />
+      </Route>
+    </Switch>
   </div>
   );
 }

@@ -1,6 +1,9 @@
-export function Content ( ) {
+import React from "react";
+
+export default function DashboardPage( ) {
     return (
-    <div className="flex flex-col flex-wrap sm:flex-row">
+    <React.Fragment>
+        <div className="flex flex-col flex-wrap sm:flex-row">
         <div className="w-full sm:w-1/2 xl:w-1/3">
             <div className="mb-4">
                 <div className="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-700 w-full">
@@ -729,6 +732,7 @@ export function Content ( ) {
                 </div>
             </div>
         </div>
-    </div>
+    </div>    
+    </React.Fragment>
     )
 }
