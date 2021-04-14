@@ -1,15 +1,24 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { login } from "../api/sign";
 
 export default function LoginPage( ) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const submitForm = () => {
-        console.llg(email);
+    const submitForm = async () => {
+        console.log(email);
         console.log(password);
         console.log("submit form!");
+        
+        const body = {
+            "email":email,
+            "password":password
+        };
+
+        const response = await login( body );
+        console.log(response);
     }
 
     return (
