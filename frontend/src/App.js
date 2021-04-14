@@ -6,6 +6,7 @@ import DashboardPage from "./pages/dashboard";
 import LoginPage from "./pages/login";
 import Image404 from "./assets/404.svg";
 import SignLayout from "./layouts/sign";
+import CrawlingPage from "./pages/crawling";
 
 function App( ) {
   return (
@@ -33,7 +34,7 @@ function App( ) {
       </Route>
       <Route path="/banners">
         <DefaultLayout>
-          크롤링
+          <CrawlingPage />
         </DefaultLayout>
       </Route>
       <Route path="/*">

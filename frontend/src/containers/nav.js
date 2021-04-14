@@ -1,3 +1,6 @@
+import React from "react";
+import profileImage from "../assets/profile.jpg"
+
 export function Nav( ) {
     return (
     <header className="w-full shadow-lg bg-white dark:bg-gray-700 items-center h-16 rounded-2xl z-40">
@@ -23,7 +26,7 @@ export function Nav( ) {
                     </div>
                 <div className="relative p-1 flex items-center justify-end w-1/4 ml-5 mr-4 sm:mr-0 sm:right-auto">
                     <a className="block relative">
-                        <img alt="profil" src="/images/person/1.jpg" className="mx-auto object-cover rounded-full h-10 w-10 "/>
+                        <img alt="profil" src={profileImage} className="mx-auto object-cover rounded-full h-10 w-10 "/>
                     </a>
                 </div>
             </div>

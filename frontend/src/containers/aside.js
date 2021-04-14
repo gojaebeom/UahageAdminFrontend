@@ -52,7 +52,7 @@ export function Aside ( ) {
                             </svg>
                         </span>
                         <span className="mx-4 text-sm font-normal">
-                            배너관리
+                            데이터 크롤링
                         </span>
                     </NavLink>
                     <NavLink to="/404" className="w-full font-thin uppercase text-gray-500 dark:text-gray-200 flex items-center p-4 my-2 transition-colors duration-200 justify-start hover:text-blue-500" href="#">
