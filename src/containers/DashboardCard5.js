@@ -28,6 +28,7 @@ export default function DashboardCard5 ( ) {
                     </div>
                     <div className="-mx-2">
                         <table className="w-full dark:text-white">
+                            <tbody>
                             <tr>
                                 <th className="py-3 px-2 md:px-3 ">
                                     S
@@ -192,6 +193,7 @@ export default function DashboardCard5 ( ) {
                                 <td>
                                 </td>
                             </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>

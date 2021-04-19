@@ -1,11 +1,11 @@
 import React from "react";
-import DashboardCard1 from "../layouts/dashboardCard1";
-import DashboardCard2 from "../layouts/dashboardCard2";
-import DashboardCard4 from "../layouts/dashboardCard4";
-import DashboardCard3 from "../layouts/dashboardCard3";
-import DashboardCard5 from "../layouts/dashboardCard5";
-import DashboardCard6 from "../layouts/dashboardCard6";
-import DashboardCard7 from "../layouts/dashboardCard7";
+import DashboardCard1 from "../containers/DashboardCard1";
+import DashboardCard2 from "../containers/DashboardCard2";
+import DashboardCard4 from "../containers/DashboardCard4";
+import DashboardCard3 from "../containers/DashboardCard3";
+import DashboardCard5 from "../containers/DashboardCard5";
+import DashboardCard6 from "../containers/DashboardCard6";
+import DashboardCard7 from "../containers/DashboardCard7";
 
 export default function DashboardPage( ) {
     return (

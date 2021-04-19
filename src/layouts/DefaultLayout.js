@@ -1,6 +1,6 @@
 import React from "react";
-import { Aside } from "../containers/aside";
-import { Nav } from "../containers/nav";
+import { Aside } from "../containers/Aside";
+import { Nav } from "../containers/Nav";
 
 export default function DefaultLayout ( props ) {
     return (

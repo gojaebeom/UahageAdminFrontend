@@ -1,12 +1,21 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
-import DefaultLayout from "./layouts/default";
-import ErrorLayout from "./layouts/error";
-import DashboardPage from "./pages/dashboard";
-import LoginPage from "./pages/login";
+
+
+
+// layouts 🎨
+import DefaultLayout from "./layouts/DefaultLayout";
+import ErrorLayout from "./layouts/ErrorLayout";
+import SignLayout from "./layouts/SignLayout";
+
+// pages ✨
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import PlacePage from "./pages/PlacePage";
+import UserPage from "./pages/UserPage";
+
+// assets 🎁
 import Image404 from "./assets/404.svg";
-import SignLayout from "./layouts/sign";
-import CrawlingPage from "./pages/crawling";
 
 function App( ) {
   return (
@@ -24,22 +33,30 @@ function App( ) {
       </Route>
       <Route path="/users">
         <DefaultLayout>
-          유저관리
+          <UserPage />
         </DefaultLayout>
       </Route>
-      <Route path="/spaces">
+      <Route path="/places">
         <DefaultLayout>
-          장소 관리
+          <PlacePage />
         </DefaultLayout>
       </Route>
-      <Route path="/banners">
+      <Route path="/messages">
         <DefaultLayout>
-          <CrawlingPage />
+          
         </DefaultLayout>
+      </Route>
+      <Route path="/403">
+        <ErrorLayout 
+          imagePath={Image404} 
+          errorMessage="You don't have permission"
+          errorType="403"
+        />
       </Route>
       <Route path="/*">
         <ErrorLayout 
           imagePath={Image404} 
+          errorMessage="Not Found"
           errorType="404"
         />
       </Route>
