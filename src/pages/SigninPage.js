@@ -1,25 +1,36 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { login } from "../apis/sign";
+import { signin } from "../apis/sign";
 
-export default function LoginPage( ) {
+export default function SigninPage({ isLoggedin , setIsLoggedin }) {
+    
+    const [signinObj, setSigninObj] = useState({
+        email : "",
+        password : ""
+    });
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const changeInput = ( event ) => {
+        console.log( event.target.value );
+        const value = event.target.value;
+        const name = event.target.name;
+        if( name === "email") setSigninObj({...signinObj, email:value});
+        if( name === "password") setSigninObj({...signinObj, password:value});
+    }
 
     const submitForm = async () => {
-        console.log(email);
-        console.log(password);
-        console.log("submit form!");
-        
         const body = {
-            "email":email,
-            "password":password
+            "email":signinObj.email,
+            "password":signinObj.password
         };
+        const res = await signin( body );
+        const token = res.data.data;
 
-        const response = await login( body );
-        console.log(response);
+        sessionStorage.setItem("ut", token); // 토큰 sessionStorage에 저장
+
+        if(res.status === 200) setIsLoggedin(true);
+        
     }
+    
 
     return (
     <React.Fragment>
@@ -41,8 +52,9 @@ export default function LoginPage( ) {
                         px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base 
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your email"
-                        value={ email }
-                        onChange={ (e) => setEmail(e.target.value) }
+                        name="email"
+                        value={ signinObj.email }
+                        onChange={ changeInput }
                     />
                     </div>
                 </div>
@@ -57,12 +69,13 @@ export default function LoginPage( ) {
                     <input 
                         type="password" 
                         id="sign-in-email" 
+                        name="password"
                         className=" rounded-r-lg flex-1 appearance-none border border-gray-300 
                         w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 
                         shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your password"
-                        value={ password }
-                        onChange={ (e) => setPassword(e.target.value) }
+                        value={ signinObj.password }
+                        onChange={ changeInput }
                     />
                     </div>
                 </div>
@@ -84,9 +97,9 @@ export default function LoginPage( ) {
             </form>
         </div>
         <div className="flex items-center justify-center mt-6">
-            <Link to="/" target="_blank" className="inline-flex items-center text-xs font-thin text-center text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-white">
+            <Link to="/signup" className="inline-flex items-center text-xs font-thin text-center text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-white">
                 <span className="ml-2">
-                    You don&#x27;t have an account?
+                    회원가입
                 </span>
             </Link>
         </div>
