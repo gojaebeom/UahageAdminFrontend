@@ -52,7 +52,7 @@ function App( ) {
 				{
 					!isLoggedin ? 
 					<SignLayout
-					title="회원가입"
+						title="회원가입"
 					>
 						<SignupPage />
 					</SignLayout> : 

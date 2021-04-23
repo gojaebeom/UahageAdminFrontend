@@ -24,14 +24,11 @@ export default function SigninPage({ isLoggedin , setIsLoggedin }) {
         };
         const res = await signin( body );
         const token = res.data.data;
-
         sessionStorage.setItem("ut", token); // 토큰 sessionStorage에 저장
 
         if(res.status === 200) setIsLoggedin(true);
-        
     }
     
-
     return (
     <React.Fragment>
     <div className="flex flex-col w-full max-w-md px-4 py-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:px-6 md:px-8 lg:px-10">
