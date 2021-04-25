@@ -21,9 +21,6 @@ export default function PlacePage( ) {
     <React.Fragment>
     <div className="mb-4">
         <div className="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-700 w-full">
-            <h1 className="text-2xl text-gray-600">
-                장소 관리
-            </h1>
             
             <label htmlFor="fileInput"
                 className="mt-5 max-w-xs py-2 px-4 flex justify-center items-center  bg-red-400 hover:bg-red-500

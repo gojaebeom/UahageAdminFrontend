@@ -1,41 +1,65 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { signin } from "../apis/sign";
-
 //redux 
-import { useDispatch } from "react-redux";
-import { signinAC } from "../_actions/isLogged";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function SigninPage( ) {
+    // redux 상태 관련 코드
+    const signObject = useSelector(state => state.signReducer);
+    const dispatch = useDispatch();
 
-    const despatch = useDispatch();
-    
-    const [signinObj, setSigninObj] = useState({
-        email : "",
-        password : ""
-    });
-
+    // input 값 입력 
     const changeInput = ( event ) => {
-        console.log( event.target.value );
         const value = event.target.value;
         const name = event.target.name;
-        if( name === "email") setSigninObj({...signinObj, email:value});
-        if( name === "password") setSigninObj({...signinObj, password:value});
+        dispatch({
+            type : "INPUT_SIGN_DATA",
+            payload : {
+                data : value,
+                name : name
+            }
+        });
     }
 
+    // 로그인 요청
     const submitForm = async () => {
-        const body = {
-            "email" : signinObj.email,
-            "password" : signinObj.password
-        };
-        const res = await signin( body );
-        const token = res.data.data;
-        sessionStorage.setItem("ut", token); // 토큰 sessionStorage에 저장
-
-        if(res.status === 200) {
-            console.log("로그인 성공");
-            despatch(signinAC(true));
+        // 로그인 요청 후 데이터 응답
+        const res = await signin({ email : signObject.email, password : signObject.password});
+        // 로그인 실패시
+        if(res.status !== 200) {
+            console.log(res.data.data);
+            const status = res.data.data;
+            if(status === 0){
+                console.log("시스템 에러");
+            }else if(status === -1){
+                console.log("이메일 없음");
+            }else if(status === -2){
+                console.log("비밀번호 틀림");
+            }else if(status === -3){
+                console.log("관리자 미인증");
+                dispatch({
+                    type : "MESSAGE",
+                    payload : {
+                        isOpen:true,
+                        message : "미인증 계정입니다.",
+                        timer : 2000,
+                        messageType : "success"
+                    }
+                });
+            }else {
+                console.log("시스템 에러");
+            }
+            return false;
         }
+
+        //토큰 값 얻어서 sessionStorage에 저장
+        const token = res.data.data;
+        sessionStorage.setItem("ut", token);
+        // input 데이터 초기화
+        dispatch({type:"CLEAR_SIGN_DATA"});
+        // 로그인 상태 true 
+        dispatch({type:"IS_LOGGED_IN", payload : true});
     }
     
     return (
@@ -59,7 +83,7 @@ export default function SigninPage( ) {
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your email"
                         name="email"
-                        value={ signinObj.email }
+                        value={ signObject.email }
                         onChange={ changeInput }
                     />
                     </div>
@@ -80,22 +104,22 @@ export default function SigninPage( ) {
                         w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 
                         shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your password"
-                        value={ signinObj.password }
+                        value={ signObject.password }
                         onChange={ changeInput }
                     />
                     </div>
                 </div>
                 <div className="flex items-center mb-6 -mt-4">
-                    <div className="flex ml-auto">
+                    {/* <div className="flex ml-auto">
                         <Link to="/" className="inline-flex text-xs font-thin text-gray-500 sm:text-sm dark:text-gray-100 hover:text-gray-700 dark:hover:text-white">
                             Forgot Your Password?
                         </Link>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="flex w-full">
                     <button type="button" 
                         className="py-2 px-4  bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
-                        onClick={submitForm}    
+                        onClick={ submitForm }    
                     >
                         Login
                     </button>

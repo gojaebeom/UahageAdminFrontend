@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
 // layouts 🎨
@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import SigninPage from "./pages/SigninPage";
 import PlacePage from "./pages/PlacePage";
 import UserPage from "./pages/UserPage";
+import ManagerListPage from "./pages/ManagerListPage";
 
 // assets 🎁
 import Image404 from "./assets/404.svg";
@@ -21,36 +22,32 @@ import { getTokensPayload } from "./utils/jwt";
 
 // redux lib 🎈
 import { useSelector, useDispatch } from "react-redux";
-// redux actions 
-import { signinAC } from "./_actions/isLogged";
-
+import AlertBox from "./components/AlertBox";
 
 function App( ) {
     // 로그인 상태 가져오기
-    const isLoggedin = useSelector( state => state.isLogged );
+    const isLoggedIn = useSelector( state => state.isLoggedInReducer );
+
     const despatch = useDispatch();
-
-	//const [ isLoggedin, setIsLoggedin ] = useState( false );
 	useEffect(()=> {
-
-        console.log(isLoggedin);
-
 		const result = getTokensPayload();
-		if (!result) return despatch(signinAC(false));
+		if (!result) return despatch({type:"IS_LOGGED_IN", payload:false});
 		const { roles } = result;
 		if( roles === "SUPER" || roles === "MANAGER" || roles === "GENERAL"){
-			despatch(signinAC(true));
+			despatch({type:"IS_LOGGED_IN", payload:true});
 		}
-	}, [despatch, isLoggedin]);
+	}, [despatch, isLoggedIn]);
 
 	return (
 	<div className="App">
+        <AlertBox />
+
 		<Switch>
 			<Route exact path="/signin">
 				{
-					!isLoggedin ? 
+					!isLoggedIn ? 
 					<SignLayout
-					title="로그인"
+					title="우아하게 CMS"
 					>	
 					<SigninPage />
 					</SignLayout> : 
@@ -59,9 +56,9 @@ function App( ) {
 			</Route>
 			<Route exact path="/signup">
 				{
-					!isLoggedin ? 
+					!isLoggedIn ? 
 					<SignLayout
-						title="회원가입"
+						title="매니저 등록"
 					>
 						<SignupPage />
 					</SignLayout> : 
@@ -70,8 +67,8 @@ function App( ) {
 			</Route>
 			<Route exact path="/">
 				{
-					isLoggedin ? 
-					<DefaultLayout>
+					isLoggedIn ? 
+					<DefaultLayout title="대쉬보드">
 						<DashboardPage />
 					</DefaultLayout> : 
 					<Redirect to="/signin"/>
@@ -79,8 +76,8 @@ function App( ) {
 			</Route>
 			<Route path="/users">
 				{
-					isLoggedin ? 
-					<DefaultLayout>
+					isLoggedIn ? 
+					<DefaultLayout title="회원 관리">
 						<UserPage />
 					</DefaultLayout>: 
 					<Redirect to="/signin" />
@@ -88,8 +85,8 @@ function App( ) {
 			</Route>
 			<Route path="/places">
 				{
-					isLoggedin ? 
-					<DefaultLayout>
+					isLoggedIn ? 
+					<DefaultLayout title="장소 관리">
 						<PlacePage />
 					</DefaultLayout>: 
 					<Redirect to="/signin" />
@@ -97,17 +94,17 @@ function App( ) {
 			</Route>
 			<Route path="/managers">
 				{
-					isLoggedin ? 
-					<DefaultLayout>
-						매니저 관리
+					isLoggedIn ? 
+					<DefaultLayout title="매니저 관리">
+						<ManagerListPage />
 					</DefaultLayout>: 
 					<Redirect to="/signin" />
 				}
 			</Route>
 			<Route path="/feedbacks">
 				{
-					isLoggedin ? 
-					<DefaultLayout>
+					isLoggedIn ? 
+					<DefaultLayout title="피드백">
 						피드백
 					</DefaultLayout>: 
 					<Redirect to="/signin" />

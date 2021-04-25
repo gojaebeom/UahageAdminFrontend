@@ -1,33 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { signup } from "../apis/sign";
 
 export default function SignupPage( ) {
+    // redux 상태 관련 코드
+    const signObject = useSelector(state => state.signReducer);
+    const dispatch = useDispatch();
 
-    const [signupObj, setSignupObj] = useState({
-        email: "", 
-        password : "",
-        nickname : ""
-    });
 
     const changeInput = ( event ) => {
-        console.log( event.target.value );
         const value = event.target.value;
         const name = event.target.name;
-        if( name === "email") setSignupObj({...signupObj, email:value});
-        if( name === "password") setSignupObj({...signupObj, password:value});
-        if( name === "nickname") setSignupObj({...signupObj, nickname:value});
+        dispatch({
+            type : "INPUT_SIGN_DATA",
+            payload : {
+                data : value,
+                name : name
+            }
+        });
+        
     }
 
     const submitForm = async ( event ) => {
-        console.log(signupObj);
-        const body = {
-            email : signupObj.email,
-            password : signupObj.password,
-            nickname : signupObj.nickname
-        }
-        const response = await signup( body );
-        console.log(response);
+        const res = await signup( signObject );
+        // input 데이터 초기화
+        console.log(res);
+        dispatch({type:"CLEAR_SIGN_DATA"});
     }
 
     return (
@@ -51,7 +50,7 @@ export default function SignupPage( ) {
                         px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base 
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="email"
-                        value={ signupObj.email }
+                        value={ signObject.email }
                         onChange={ changeInput }
                     />
                     </div>
@@ -72,7 +71,7 @@ export default function SignupPage( ) {
                         px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base 
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="password"
-                        value={ signupObj.password }
+                        value={ signObject.password }
                         onChange={ changeInput }
                     />
                     </div>
@@ -90,7 +89,7 @@ export default function SignupPage( ) {
                             w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 
                             shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                             placeholder="nicname"
-                            value={ signupObj.nickname }
+                            value={ signObject.nickname }
                             onChange={ changeInput }
                         />
                     </div>
@@ -100,7 +99,7 @@ export default function SignupPage( ) {
                         className="py-2 px-4  bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
                         onClick={ submitForm }    
                     >
-                        회원가입
+                        등록 요청
                     </button>
                 </div>
             </form>

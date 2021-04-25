@@ -1,7 +1,11 @@
 import { combineReducers } from "redux";
-import isLoggedReducer from "./isLogged";
+import isLoggedInReducer from "./isLoggedInReducer";
+import signReducer from "./signReducer";
+import alterMessage from "./alertMessage";
 
 const mainReducer = combineReducers({
-    isLogged : isLoggedReducer
+    isLoggedInReducer,
+    signReducer,
+    alterMessage
 });
 export default mainReducer;
