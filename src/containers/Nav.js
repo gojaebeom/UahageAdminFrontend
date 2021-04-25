@@ -1,5 +1,6 @@
 import React from "react";
 import profileImage from "../assets/profile.jpg"
+import NavProfile from "./NavProfile";
 
 export function Nav( ) {
     return (
@@ -25,9 +26,7 @@ export function Nav( ) {
                         </div>
                     </div>
                 <div className="relative p-1 flex items-center justify-end w-1/4 ml-5 mr-4 sm:mr-0 sm:right-auto">
-                    <a className="block relative">
-                        <img alt="profil" src={profileImage} className="mx-auto object-cover rounded-full h-10 w-10 "/>
-                    </a>
+                    <NavProfile />
                 </div>
             </div>
         </div>

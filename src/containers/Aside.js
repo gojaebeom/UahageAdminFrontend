@@ -108,7 +108,7 @@ export function Aside ( ) {
                             장소 관리
                         </span>
                     </NavLink>
-                    <NavLink to="/superusers" 
+                    <NavLink to="/managers" 
                         className="
                         w-full 
                         font-thin 
@@ -128,17 +128,18 @@ export function Aside ( ) {
                         hover:from-white 
                         hover:to-blue-100 
                         hover:text-blue-500 
-                        hover:border-blue-500"
+                        hover:border-blue-500 
+                        "
                         activeStyle={{color:"#3498DB"}}
                         >
                         <span className="text-left">
-                            <i className="fas fa-comment-dots"></i>
+                            <i className="fas fa-user-tie"></i>
                         </span>
                         <span className="mx-4 text-sm font-normal">
                             매니저 관리
                         </span>
                     </NavLink>
-                    <NavLink to="/messages" 
+                    <NavLink to="/feedbacks" 
                         className="
                         w-full 
                         font-thin 
@@ -165,7 +166,7 @@ export function Aside ( ) {
                             <i className="fas fa-comment-dots"></i>
                         </span>
                         <span className="mx-4 text-sm font-normal">
-                            사용자 제안 메세지
+                            회원 피드백
                         </span>
                     </NavLink>
                 </div>

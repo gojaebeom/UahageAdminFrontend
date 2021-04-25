@@ -1,12 +1,30 @@
 import axios from "axios";
+import { DOMAIN } from "../settingProxy";
 
-export const login = ( body ) => {
-    console.log("요청 보냄");
-    const url = `http://localhost:5000/sign/login`;
-    return axios.post(url, body, {
+export function signin( body ) {
+    const pathname = `/api/admin/auth/signin`;
+    return axios.post(DOMAIN + pathname, body, {
         headers: {
             'Content-Type': 'application/json'
     }})
-    .then( data => data.data )
-    .catch( error => { throw new Error(error); });
+    .then( res => {
+        return { status : res.status, data : res.data };
+    })
+    .catch( error => {
+        return { status : error.response.status, data : error.response.data };
+    });
+}
+
+export function signup( body ) {
+    const pathname = `/api/admin/auth/signup`;
+    return axios.post(DOMAIN + pathname, body, {
+        headers: {
+            'Content-Type': 'application/json'
+    }})
+    .then( res => {
+        return { status : res.status, data : res.data };
+    })
+    .catch( error => {
+        return { status : error.response.status, data : error.response.data };
+    });
 }
