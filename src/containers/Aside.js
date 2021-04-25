@@ -108,7 +108,37 @@ export function Aside ( ) {
                             장소 관리
                         </span>
                     </NavLink>
-                    <NavLink to="/banners" 
+                    <NavLink to="/superusers" 
+                        className="
+                        w-full 
+                        font-thin 
+                        uppercase 
+                        flex 
+                        items-center 
+                        p-4 
+                        my-2 
+                        transition-colors 
+                        duration-200 
+                        justify-start
+                        bg-gradient-to-r 
+                        dark:from-gray-700 
+                        dark:to-gray-800 
+                        text-gray-500
+                        hover:border-r-4 
+                        hover:from-white 
+                        hover:to-blue-100 
+                        hover:text-blue-500 
+                        hover:border-blue-500"
+                        activeStyle={{color:"#3498DB"}}
+                        >
+                        <span className="text-left">
+                            <i className="fas fa-comment-dots"></i>
+                        </span>
+                        <span className="mx-4 text-sm font-normal">
+                            매니저 관리
+                        </span>
+                    </NavLink>
+                    <NavLink to="/messages" 
                         className="
                         w-full 
                         font-thin 
