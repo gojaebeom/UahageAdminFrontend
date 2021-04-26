@@ -14,3 +14,6 @@ export function getTokensPayload ( ) {
         }
     }
 }
+export function deleteToken( ) {
+    sessionStorage.removeItem("ut");
+}
