@@ -20,6 +20,7 @@ import SignupPage from "./pages/SignupPage";
 import { getTokensPayload } from "./utils/jwt";
 
 function App( ) {
+	
 	const [ isLoggedin, setIsLoggedin ] = useState( false );
 	useEffect(()=> {
 		const result = getTokensPayload();
@@ -38,7 +39,7 @@ function App( ) {
 				{
 					!isLoggedin ? 
 					<SignLayout
-					title="로그인"
+						title="로그인"
 					>	
 					<SigninPage 
 						isLoggedin={isLoggedin}
