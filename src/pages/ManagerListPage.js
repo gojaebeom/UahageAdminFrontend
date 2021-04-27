@@ -109,7 +109,6 @@ export default function ManagerListPage( ) {
         }else {
             setFilter({...filter, page: 1 });
         }
-        
     }
         
     // 마지막 버튼 클릭 이벤트
