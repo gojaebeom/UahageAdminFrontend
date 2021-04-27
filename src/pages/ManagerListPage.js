@@ -95,9 +95,23 @@ export default function ManagerListPage( ) {
     // 첫 페이지 클릭 이벤트
     const startButtonEvent = ( ) => setFilter({...filter, page : 1});
     // 다음 버튼 클릭 이벤트
-    const nextButtonEvent = ( ) => setFilter({...filter, page : filter.page + 1});
+    const nextButtonEvent = ( ) => {
+        if(filter.page + 5 <= paginate.totalPage){
+            setFilter({...filter, page: filter.page + 5});
+        }else {
+            setFilter({...filter, page: paginate.totalPage});
+        }
+    }
     // 이전 버튼 클릭 이벤트
-    const prevButtonEvent = ( ) => setFilter({...filter, page : filter.page - 1});
+    const prevButtonEvent = ( ) => {
+        if(filter.page - 5 >= 1){
+            setFilter({...filter, page : filter.page - 5 });
+        }else {
+            setFilter({...filter, page: 1 });
+        }
+        
+    }
+        
     // 마지막 버튼 클릭 이벤트
     const endButtonEvent = ( ) => setFilter({...filter, page : paginate.totalPage});
     
