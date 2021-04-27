@@ -11,9 +11,9 @@ export default function SignLayout( props ){
                 <h1 className="font-extrabold text-5xl text-center text-white leading-tight mt-4">
                     { props.title }
                 </h1>
-                <p className="font-extrabold text-8xl mt-10 text-white">
+                <div className="font-extrabold text-8xl mt-10 text-white">
                     { props.children }
-                </p>
+                </div>
             </div>
         </div>
     </div>

@@ -108,7 +108,7 @@ export function Aside ( ) {
                             장소 관리
                         </span>
                     </NavLink>
-                    <NavLink to="/managers?page=1" 
+                    <NavLink to="/managers" 
                         className="
                         w-full 
                         font-thin 

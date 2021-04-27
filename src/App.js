@@ -18,7 +18,7 @@ import Image404 from "./assets/404.svg";
 import SignupPage from "./pages/SignupPage";
 
 //utils 
-import { getTokensPayload } from "./utils/jwt";
+import { tokenValidation } from "./utils/jwt";
 
 // redux lib 🎈
 import { useSelector, useDispatch } from "react-redux";
@@ -29,13 +29,12 @@ function App( ) {
     const isLoggedIn = useSelector( state => state.isLoggedInReducer );
 
     const despatch = useDispatch();
+
+	// 토큰의 상태가 변경될 때 마다 실행
 	useEffect(()=> {
-		const result = getTokensPayload();
-		if (!result) return despatch({type:"IS_LOGGED_IN", payload:false});
-		const { roles } = result;
-		if( roles === "SUPER" || roles === "MANAGER" || roles === "GENERAL"){
-			despatch({type:"IS_LOGGED_IN", payload:true});
-		}
+		tokenValidation() ? 
+		despatch({type:"IS_LOGGED_IN", payload: true}) :
+		despatch({type:"IS_LOGGED_IN", payload: false});
 	}, [despatch, isLoggedIn]);
 
 	return (

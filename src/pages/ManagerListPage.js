@@ -1,43 +1,106 @@
 import React, { useEffect, useState } from "react";
-import { index } from "../apis/manager";
+import { index, _delete } from "../apis/manager";
+import { isSuperAdmin } from "../utils/jwt";
 
 export default function ManagerListPage( ) {
-    // const managers = useSelector(state => state.managerReducer);
-    // const dispatch = useDispatch();
-
-    const [managers, setManagers] = useState([
-        {
-            id : "",
-            nickname : "",
-            email : "",
-            roles : "",
-            is_verified : false,
-            created_at : ""
-        }
-    ]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(async () => {
-        const res = await index({page:1});
-        const userList = res.data.result.data;
-        //const userTotal = res.data.result.count;
-        setManagers([].concat(userList));
-    }, []);
-
+    // 매니저 리스트 상태
+    const [managers, setManagers] = useState([]);
+    const [paginate, setPaginate] = useState({
+        totalPage : 0,
+        //currentPage : 1,
+        perPage : 5,
+        startPage : 1, // 임시 데이터
+        lastPage : 5, // 임시 데이터
+    });
+    //필터링 상태
     const [filter, setFilter] = useState({
         search : '',
-        sort : false,
+        asc : false,
+        isNotVerified : false,
         page : 1,
-        is_verified : 0,
     });
+    //필터 이벤트시 실행 함수
     const filterEvent = ( e ) => {
-        console.log("필터 요청중 ");
         const name = e.target.name;
         const value = e.target.value;
+        // 💡 search 관련 기능은 debounce 방식으로 개선해야함
         if( name === "search") setFilter({...filter, search : value});
-        else if( name === "sort") setFilter({...filter, sort : !filter.sort});
-        else if( name === "is_verified") setFilter({...filter, is_verified : value});
+        else if( name === "sort") setFilter({...filter, asc : !filter.asc});
+        else if( name === "isNotVerified") setFilter({...filter, isNotVerified : !filter.isNotVerified});
+        console.log(filter);
     }
 
+    // 매니저 리스트 초기화
+    const setManagersByIndexApi = async () => {
+        const res = await index( filter );
+        if( res.status !== 200) return alert("시스템 에러");
+
+        const userList = res.data.result.data;
+        setManagers([ ].concat(userList));
+
+        const totalCount = userList[0] ? userList[0].total : 0;
+        const countList = 5;
+        const totalPage = Math.ceil(totalCount / countList);
+        
+        //if (totalPage < filter.page) setFilter({...filter, page : totalPage});
+        const startPage = (Math.floor((filter.page - 1) / 5)) * 5 + 1;
+        console.log(filter.page);
+        console.log(startPage);
+        setPaginate({
+            ...paginate, 
+            totalPage : totalPage, 
+            startPage : startPage,
+            lastPage : startPage + paginate.perPage -1
+        });
+
+        const buttons = document.querySelector(".paginate-button-wrap").querySelectorAll("button");
+        for(let item of buttons){
+            const buttonNumber = Number(item.textContent.trim());
+            if(buttonNumber === filter.page){
+                item.style.color = '#5DADE2';
+                item.style.background = '#F8F9F9';
+            }else {
+                item.style.color = 'gray';
+                item.style.background = 'white';
+            }
+        }
+    }
+
+    // 페이지 시작시 매니저리스트 API 요청 및 매니저 리스트 상태 업데이트
+    // 필터 상태가 바뀔 때 마다 실행 🎈
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(async () => {
+        setManagersByIndexApi();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ filter ]);
+
+    // 특정 매니저 삭제 버튼 클릭시 이벤트
+    const deleteEvent = async ( id ) => {
+        // super amdin 채크
+        if( !isSuperAdmin() ) return alert("권한이 없습니다.");
+        // eslint-disable-next-line no-restricted-globals
+        const result = confirm("데이터를 삭제하시겠습니까?");
+        if(!result) return false; 
+        // 삭제 api 요청
+        const res = await _delete( id );
+        // console.log( res.status );
+        // 통신 실패시 함수 중단
+        if( res.status !== 200) return alert("시스템 에러");
+        // 매니저리스트 갱신
+        setManagersByIndexApi();
+    }
+
+    // 페이지 이동시 필터 상태 변경 -> filter 상태를 감지하는 useEfffect 실행
+    const PageChangeEvent = ( event, pageNumber ) => setFilter({...filter, page : pageNumber });
+    // 첫 페이지 클릭 이벤트
+    const startButtonEvent = ( ) => setFilter({...filter, page : 1});
+    // 다음 버튼 클릭 이벤트
+    const nextButtonEvent = ( ) => setFilter({...filter, page : filter.page + 1});
+    // 이전 버튼 클릭 이벤트
+    const prevButtonEvent = ( ) => setFilter({...filter, page : filter.page - 1});
+    // 마지막 버튼 클릭 이벤트
+    const endButtonEvent = ( ) => setFilter({...filter, page : paginate.totalPage});
+    
     return (
     <React.Fragment>
     <div className="mb-4">
@@ -50,14 +113,14 @@ export default function ManagerListPage( ) {
                     <div className="filter-wrapper flex justify-between pt-5">
                         <div className="ml-3">
                             <label htmlFor="f-asc" className="mr-5">
-                                <span className="mr-2 text-gray-600">ASC</span>
+                                <span className="mr-2 text-gray-600">역정렬</span>
                                 <input name="sort" id="f-asc" type="checkbox"
                                     onChange={ filterEvent }
                                 />
                             </label>
                             <label htmlFor="f-is_verified">
-                                <span className="mr-2 text-gray-600">미승인 매니저</span>
-                                <input name="is_verified" id="f-is_verified" type="checkbox"
+                                <span className="mr-2 text-gray-600">미승인</span>
+                                <input name="isNotVerified" id="f-is_verified" type="checkbox"
                                     onChange={ filterEvent }
                                 />
                             </label>
@@ -120,7 +183,7 @@ export default function ManagerListPage( ) {
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
-                                                    <div className="flex items-center">
+                                                    <div className="flex items-center justify-center">
                                                         { e.created_at.split("T")[0] }
                                                     </div>
                                                 </td>
@@ -137,7 +200,9 @@ export default function ManagerListPage( ) {
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                             </svg>
                                                         </div>
-                                                        <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer">
+                                                        <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer"
+                                                            onClick={ () => deleteEvent( e.id ) }
+                                                        >
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                             </svg>
@@ -154,31 +219,60 @@ export default function ManagerListPage( ) {
                 </div>
             </div>
 
-            <div className="flex justify-center ">
-                <div className="flex items-center w-1/4 mt-3">
-                    <button type="button" className="w-full p-4 border text-base rounded-l-xl text-gray-600 bg-white hover:bg-gray-100">
-                        <svg width="9" fill="currentColor" height="8" className="" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1427 301l-531 531 531 531q19 19 19 45t-19 45l-166 166q-19 19-45 19t-45-19l-742-742q-19-19-19-45t19-45l742-742q19-19 45-19t45 19l166 166q19 19 19 45t-19 45z">
-                            </path>
-                        </svg>
+            <div className="flex justify-center">
+                <div className="paginate-button-wrap flex items-center justify-center w-1/4 mt-3">
+                    <button type="button" className="w-full p-2 pl-3 pr-3 border text-base rounded-l-xl text-gray-600 bg-white hover:bg-gray-100"
+                        onClick={ startButtonEvent }
+                    >
+                        start
                     </button>
-                    <button type="button" className="w-full px-4 py-2 border-t border-b text-base text-indigo-500 bg-white hover:bg-gray-100 ">
-                        1
-                    </button>
-                    <button type="button" className="w-full px-4 py-2 border text-base text-gray-600 bg-white hover:bg-gray-100">
-                        2
-                    </button>
-                    <button type="button" className="w-full px-4 py-2 border-t border-b text-base text-gray-600 bg-white hover:bg-gray-100">
-                        3
-                    </button>
-                    <button type="button" className="w-full px-4 py-2 border text-base text-gray-600 bg-white hover:bg-gray-100">
-                        4
-                    </button>
-                    <button type="button" className="w-full p-4 border-t border-b border-r text-base  rounded-r-xl text-gray-600 bg-white hover:bg-gray-100">
-                        <svg width="9" fill="currentColor" height="8" className="" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z">
-                            </path>
-                        </svg>
+                    {
+                        filter.page !== 1 &&
+                        <button type="button" className="w-full p-4 border border-l-0 text-base text-gray-600 bg-white hover:bg-gray-100"
+                            onClick={prevButtonEvent}
+                        >
+                            <svg width="9" fill="currentColor" height="8" className="" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1427 301l-531 531 531 531q19 19 19 45t-19 45l-166 166q-19 19-45 19t-45-19l-742-742q-19-19-19-45t19-45l742-742q19-19 45-19t45 19l166 166q19 19 19 45t-19 45z">
+                                </path>
+                            </svg>
+                        </button>
+                    }
+                    
+                    {
+                        //paginate.totalPage
+                        [...Array(paginate.perPage)].map( (e, index) => {
+                            // console.log(`시작 페이지 : ${ paginate.startPage }`);
+                            // console.log(`마지막 페이지 : ${ paginate.lastPage }`);
+                            // console.log(`총 페이지 갯수 : ${ paginate.totalPage}`);
+                            const number = index + paginate.startPage;
+                            if( number <= paginate.totalPage ){
+                                return (
+                                    <button key={ number }
+                                        type="button"
+                                        className={`w-full px-4 py-2 border-t border-b border-r text-base  text-gray-600 hover:text-indigo-500 bg-white hover:bg-gray-100`}
+                                        onClick={ ( e ) => PageChangeEvent( e, number ) }
+                                    >
+                                        { number }
+                                    </button>
+                                )
+                            }
+                        })
+                    }
+                    {
+                        filter.page !== paginate.totalPage && 
+                        <button type="button" className="w-full p-4 border-t border-b border-r text-base text-gray-600 bg-white hover:bg-gray-100"
+                            onClick={nextButtonEvent}
+                        >
+                            <svg width="9" fill="currentColor" height="8" className="" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z">
+                                </path>
+                            </svg>
+                        </button>
+                    }
+                    <button type="button" className="w-full p-2 pl-3 pr-3 border-t border-b border-r text-base  rounded-r-xl text-gray-600 bg-white hover:bg-gray-100"
+                        onClick={ endButtonEvent }
+                    >
+                        end
                     </button>
                 </div>
             </div>
