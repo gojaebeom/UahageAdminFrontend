@@ -22,13 +22,14 @@ import { tokenValidation } from "./utils/jwt";
 
 // redux lib 🎈
 import { useSelector, useDispatch } from "react-redux";
-import AlertBox from "./components/AlertBox";
+import ManagerDetailModal from "./containers/ManagerDetailModal";
 
 function App( ) {
+	const despatch = useDispatch();
     // 로그인 상태 가져오기
     const isLoggedIn = useSelector( state => state.isLoggedInReducer );
-
-    const despatch = useDispatch();
+	// 매니저 모달 상태 가져오기
+    const managerModalState = useSelector( state => state.managerModalReducer );
 
 	// 토큰의 상태가 변경될 때 마다 실행
 	useEffect(()=> {
@@ -39,7 +40,10 @@ function App( ) {
 
 	return (
 	<div className="App">
-        <AlertBox />
+		{
+			// 매니저 모달 창 상태에 따라 보이기
+			managerModalState.open && <ManagerDetailModal />
+		}
 		<Switch>
 			<Route exact path="/signin">
 				{

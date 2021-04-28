@@ -2,7 +2,6 @@ import axios from "axios";
 import { DOMAIN } from "../settingProxy";
 
 export function index({ search, asc, page, isNotVerified }) {
-
     let pathname = `/api/admin/managers?`;
     if( search !== "") pathname += `search=${ search }`;
     if( page ){
@@ -24,6 +23,32 @@ export function index({ search, asc, page, isNotVerified }) {
     console.log(`최종 pathname : ${ pathname }`);
 
     return axios.get(DOMAIN + pathname, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then( res => {
+        return { status : res.status, data : res.data };
+    })
+    .catch( error => {
+        return { status : error.response.status, data : error.response.data };
+    });
+}
+
+export function show( id ){
+    let pathname = `/api/admin/managers/${id}`;
+    return axios.get(DOMAIN + pathname)
+    .then( res => {
+        return { status : res.status, data : res.data };
+    })
+    .catch( error => {
+        return { status : error.response.status, data : error.response.data };
+    });
+}
+
+export function update( body, id ){
+    let pathname = `/api/admin/managers/${id}`;
+    return axios.put(DOMAIN + pathname, body, {
         headers: {
             'Content-Type': 'application/json'
         }

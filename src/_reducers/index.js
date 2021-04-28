@@ -1,11 +1,11 @@
 import { combineReducers } from "redux";
 import isLoggedInReducer from "./isLoggedInReducer";
-import signReducer from "./signReducer";
-import alterMessage from "./alertMessage";
+import { managerModalReducer } from "./modalReducer";
 
 const mainReducer = combineReducers({
+    // 로그인 상태
     isLoggedInReducer,
-    signReducer,
-    alterMessage,
+    // 매니저 모달 상태
+    managerModalReducer,
 });
 export default mainReducer;

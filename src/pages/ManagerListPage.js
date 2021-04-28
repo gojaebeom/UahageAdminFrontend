@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { index, _delete } from "../apis/manager";
 import { isSuperAdmin } from "../utils/jwt";
 
 export default function ManagerListPage( ) {
+    // 모달창 상태 감지
+    const managerModalState = useSelector(state => state.managerModalReducer);
+    useEffect(()=> {
+        if( managerModalState.refresh ) {
+            setManagersByIndexApi();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [managerModalState]);
+
+
     // 매니저 리스트 상태
     const [managers, setManagers] = useState([]);
+    // 페이징 처리 상태
     const [paginate, setPaginate] = useState({
         totalPage : 0,
         //currentPage : 1,
@@ -12,14 +24,14 @@ export default function ManagerListPage( ) {
         startPage : 1, // 임시 데이터
         lastPage : 5, // 임시 데이터
     });
-    //필터링 상태
+    // 필터링 상태
     const [filter, setFilter] = useState({
         search : '',
         asc : false,
         isNotVerified : false,
         page : 1,
     });
-    //필터 이벤트시 실행 함수
+    // 필터 이벤트시 실행 함수
     const filterEvent = ( e ) => {
         const name = e.target.name;
         const value = e.target.value;
@@ -29,7 +41,6 @@ export default function ManagerListPage( ) {
         else if( name === "isNotVerified") setFilter({...filter, isNotVerified : !filter.isNotVerified});
         console.log(filter);
     }
-
     // 매니저 리스트 초기화
     const setManagersByIndexApi = async () => {
         const res = await index( filter );
@@ -66,6 +77,8 @@ export default function ManagerListPage( ) {
         }
     }
 
+
+
     // 페이지 시작시 매니저리스트 API 요청 및 매니저 리스트 상태 업데이트
     // 필터 상태가 바뀔 때 마다 실행 🎈
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,6 +86,15 @@ export default function ManagerListPage( ) {
         setManagersByIndexApi();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ filter ]);
+
+    // 모달창 오픈 -> redux 로 상태관리
+    const dispatch = useDispatch();
+    const openEditModalEvent = ( id ) => {
+        dispatch({ 
+            type : "MANAGER_MODAL_TOGGLE", 
+            payload : { open : true, managerId : id } 
+        });
+    }
 
     // 특정 매니저 삭제 버튼 클릭시 이벤트
     const deleteEvent = async ( id ) => {
@@ -89,11 +111,11 @@ export default function ManagerListPage( ) {
         // 매니저리스트 갱신
         setManagersByIndexApi();
     }
-
-    // 페이지 이동시 필터 상태 변경 -> filter 상태를 감지하는 useEfffect 실행
-    const PageChangeEvent = ( event, pageNumber ) => setFilter({...filter, page : pageNumber });
+    
     // 첫 페이지 클릭 이벤트
-    const startButtonEvent = ( ) => setFilter({...filter, page : 1});
+    const startButtonEvent = ( ) => {
+        if( filter.page !== 1 ) setFilter({...filter, page : 1});
+    }
     // 다음 버튼 클릭 이벤트
     const nextButtonEvent = ( ) => {
         if(filter.page + 5 <= paginate.totalPage){
@@ -110,15 +132,22 @@ export default function ManagerListPage( ) {
             setFilter({...filter, page: 1 });
         }
     }
-        
     // 마지막 버튼 클릭 이벤트
-    const endButtonEvent = ( ) => setFilter({...filter, page : paginate.totalPage});
-    
+    const endButtonEvent = ( ) => {
+        if( paginate.totalPage !== filter.page ) setFilter({...filter, page : paginate.totalPage});
+    }
+    // 페이지 이동시 필터 상태 변경 -> filter 상태를 감지하는 useEfffect 실행
+    const PageChangeEvent = ( event, pageNumber ) => {
+        if( pageNumber !== filter.page ) {
+            setFilter({...filter, page : pageNumber });
+        }
+    }
+
     return (
     <React.Fragment>
     <div className="mb-4">
-        {/* 필터링 채크박스  */}
         
+        {/* 필터링 채크박스  */}
         <div className="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-700 w-full">
             <div className="overflow-x-auto">
                 <div className="w-full">
@@ -185,11 +214,13 @@ export default function ManagerListPage( ) {
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
                                                     <span className="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs">
-                                                        { e.roles }
+                                                        { e.roles === "SUPER" && "관리자" }
+                                                        { e.roles === "MANAGER" && "매니저" }
+                                                        { e.roles === "GENERAL" && "일반" }
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
-                                                    <span className="bg-red-200 text-red-400 py-1 px-3 rounded-full text-xs">
+                                                    <span className={` ${ e.is_verified === 1 ? "text-blue-400 bg-blue-200" : "text-red-400 bg-red-200"}  py-1 px-3 rounded-full text-xs`}>
                                                         { 
                                                             e.is_verified === 1 ? "승인" : "미승인" 
                                                         }
@@ -208,11 +239,15 @@ export default function ManagerListPage( ) {
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                             </svg>
                                                         </div> */}
-                                                        <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer">
+                                                        {/* 수정 버튼 */}
+                                                        <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer"
+                                                            onClick={ () => openEditModalEvent( e.id ) }
+                                                        >
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                             </svg>
                                                         </div>
+                                                        {/* 삭제 버튼 */}
                                                         <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer"
                                                             onClick={ () => deleteEvent( e.id ) }
                                                         >

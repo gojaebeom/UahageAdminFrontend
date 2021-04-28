@@ -12,6 +12,12 @@ code {
     monospace;
 }
 
+/* Toggle A */
+input:checked ~ .dot {
+  transform: translateX(100%);
+  background-color: #9933FF;
+}
+
 /* ./src/index.css */
 @tailwind base;
 @tailwind components;

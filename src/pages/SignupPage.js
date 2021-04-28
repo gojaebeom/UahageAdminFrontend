@@ -1,34 +1,44 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Redirect } from "react-router-dom";
 import { signup } from "../apis/sign";
 
 export default function SignupPage( ) {
-    // redux 상태 관련 코드
-    const signObject = useSelector(state => state.signReducer);
-    const dispatch = useDispatch();
+    // 회원가입 상태
+    const [signUp, setSignUp] = useState({
+        email : "",
+        password : "",
+        nickname : "",
+    });
+    // 회원가입 완료시 리다이렉트 상태
+    const [isSuccess, setIsSuccess] = useState(false);
 
-
-    const changeInput = ( event ) => {
+    // input change 시 실행 이벤트시 
+    const inputChangeEvent = ( event ) => {
         const value = event.target.value;
         const name = event.target.name;
-        dispatch({
-            type : "INPUT_SIGN_DATA",
-            payload : {
-                data : value,
-                name : name
-            }
-        });
-        
+        // 이메일 input
+        if( name === "email") 
+            return setSignUp({...signUp, email : value});
+        // 페스워드 input 
+        else if ( name === "password") 
+            return setSignUp({...signUp, password : value});
+        // 닉네임 input
+        else if ( name === "nickname")
+            return setSignUp({...signUp, nickname : value});
+    }
+    // 회원가입 API 요청 이벤트 
+    const submitFormEvent = async ( event ) => {
+        const res = await signup( signUp );
+        if(res.status !== 200) {
+            alert("시스템 에러.");
+            return false;
+        }
+        alert("매니저 등록이 완료되었습니다. \n관리자 승인 이후 이용하실 수 있습니다.");
+        setIsSuccess(true);
     }
 
-    const submitForm = async ( event ) => {
-        const res = await signup( signObject );
-        // input 데이터 초기화
-        console.log(res);
-        dispatch({type:"CLEAR_SIGN_DATA"});
-    }
-
+    // 회원가입 성공시 로그인페이지로 리다이렉트
+    if( isSuccess ) return <Redirect to="/signin"/>
     return (
     <React.Fragment>
     <div className="flex flex-col w-full max-w-md px-4 py-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:px-6 md:px-8 lg:px-10">
@@ -50,8 +60,8 @@ export default function SignupPage( ) {
                         px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base 
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="email"
-                        value={ signObject.email }
-                        onChange={ changeInput }
+                        value={ signUp.email }
+                        onChange={ inputChangeEvent }
                     />
                     </div>
                 </div>
@@ -71,8 +81,8 @@ export default function SignupPage( ) {
                         px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base 
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="password"
-                        value={ signObject.password }
-                        onChange={ changeInput }
+                        value={ signUp.password }
+                        onChange={ inputChangeEvent }
                     />
                     </div>
                 </div>
@@ -89,15 +99,15 @@ export default function SignupPage( ) {
                             w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 
                             shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                             placeholder="nicname"
-                            value={ signObject.nickname }
-                            onChange={ changeInput }
+                            value={ signUp.nickname }
+                            onChange={ inputChangeEvent }
                         />
                     </div>
                 </div>
                 <div className="flex w-full">
                     <button type="button" 
                         className="py-2 px-4  bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
-                        onClick={ submitForm }    
+                        onClick={ submitFormEvent }    
                     >
                         등록 요청
                     </button>

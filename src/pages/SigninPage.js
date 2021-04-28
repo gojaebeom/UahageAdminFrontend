@@ -1,54 +1,46 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { signin } from "../apis/sign";
-//redux 
-import { useDispatch, useSelector } from "react-redux";
 
 export default function SigninPage( ) {
-    // redux 상태 관련 코드
-    const signObject = useSelector(state => state.signReducer);
     const dispatch = useDispatch();
-
-    // input 값 입력 
-    const changeInput = ( event ) => {
+    // 로그인 상태
+    const [signIn, setSignIn] = useState({
+        email : "",
+        password : ""
+    });
+    // input change 시 실행 이벤트시 
+    const inputChangeEvent = ( event ) => {
         const value = event.target.value;
         const name = event.target.name;
-        dispatch({
-            type : "INPUT_SIGN_DATA",
-            payload : {
-                data : value,
-                name : name
-            }
-        });
+        // 이메일 input
+        if( name === "email") 
+            return setSignIn({...signIn, email : value});
+        // 페스워드 input 
+        else if ( name === "password") 
+            return setSignIn({...signIn, password : value});
+        // else if ( name === "nickname")
+        //     return {...signIn, nickname : value};
     }
 
     // 로그인 요청
-    const submitForm = async () => {
+    const submitFormEvent = async () => {
         // 로그인 요청 후 데이터 응답
-        const res = await signin({ email : signObject.email, password : signObject.password});
+        const res = await signin( signIn );
         // 로그인 실패시
         if(res.status !== 200) {
-            console.log(res.data.data);
             const status = res.data.data;
             if(status === 0){
-                console.log("시스템 에러");
+                alert("시스템 에러.");
             }else if(status === -1){
-                console.log("이메일 없음");
+                alert("존재하지 않는 이메일 입니다.");
             }else if(status === -2){
-                console.log("비밀번호 틀림");
+                alert("비밀번호가 올바르지 않습니다.");
             }else if(status === -3){
-                console.log("관리자 미인증");
-                // dispatch({
-                //     type : "MESSAGE",
-                //     payload : {
-                //         isOpen:true,
-                //         message : "미인증 계정입니다.",
-                //         timer : 1000,
-                //         messageType : "success"
-                //     }
-                // });
+                alert("관리자 미인증 계정입니다.");
             }else {
-                console.log("시스템 에러");
+                alert("시스템 에러.");
             }
             return false;
         }
@@ -56,8 +48,6 @@ export default function SigninPage( ) {
         //토큰 값 얻어서 sessionStorage에 저장
         const token = res.data.data;
         sessionStorage.setItem("ut", token);
-        // input 데이터 초기화
-        dispatch({type:"CLEAR_SIGN_DATA"});
         // 로그인 상태 true 
         dispatch({type:"IS_LOGGED_IN", payload : true});
     }
@@ -83,8 +73,8 @@ export default function SigninPage( ) {
                         focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your email"
                         name="email"
-                        value={ signObject.email }
-                        onChange={ changeInput }
+                        value={ signIn.email }
+                        onChange={ inputChangeEvent }
                     />
                     </div>
                 </div>
@@ -104,8 +94,8 @@ export default function SigninPage( ) {
                         w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 
                         shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
                         placeholder="Your password"
-                        value={ signObject.password }
-                        onChange={ changeInput }
+                        value={ signIn.password } 
+                        onChange={ inputChangeEvent }
                     />
                     </div>
                 </div>
@@ -119,7 +109,7 @@ export default function SigninPage( ) {
                 <div className="flex w-full">
                     <button type="button" 
                         className="py-2 px-4  bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
-                        onClick={ submitForm }    
+                        onClick={ submitFormEvent }    
                     >
                         Login
                     </button>
