@@ -1,34 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { index, _delete } from "../apis/manager";
+import { index, _delete } from "../apis/place";
 import { isSuperAdmin } from "../utils/jwt";
 
-export default function ManagerListPage( ) {
-    // 모달창 상태 감지
+export default function PlageListPage( ) {
+    // // 모달창 상태 감지
     const modalState = useSelector(state => state.modalReducer);
     useEffect(()=> {
         if( modalState.refresh ) {
-            setManagersByIndexApi();
+            setPlaceByIndexApi();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalState]);
 
 
-    // 매니저 리스트 상태
-    const [managers, setManagers] = useState([]);
+    // 장소 리스트 상태
+    const [place, setPlace] = useState([]);
     // 페이징 처리 상태
     const [paginate, setPaginate] = useState({
         totalPage : 0,
         //currentPage : 1,
-        perPage : 5,
+        perPage : 10,
         startPage : 1, // 임시 데이터
         lastPage : 5, // 임시 데이터
     });
     // 필터링 상태
     const [filter, setFilter] = useState({
-        search : '',
-        asc : false,
-        isNotVerified : false,
+        search : "",
+        placeCode : "",
         page : 1,
     });
     // 필터 이벤트시 실행 함수
@@ -38,25 +37,27 @@ export default function ManagerListPage( ) {
         // 💡 search 관련 기능은 debounce 방식으로 개선해야함
         if( name === "search") setFilter({...filter, search : value});
         else if( name === "sort") setFilter({...filter, asc : !filter.asc});
-        else if( name === "isNotVerified") setFilter({...filter, isNotVerified : !filter.isNotVerified});
+        else if( name === "placeCode") setFilter({...filter, placeCode : value });
+        else if( name === "address") setFilter({...filter, address : value});
         console.log(filter);
     }
-    // 매니저 리스트 초기화
-    const setManagersByIndexApi = async () => {
+    // 유저 리스트 초기화
+    const setPlaceByIndexApi = async () => {
         const res = await index( filter );
         if( res.status !== 200) return alert("시스템 에러");
 
-        const userList = res.data.result.data;
-        setManagers([ ].concat(userList));
+        const placeList = res.data.result.data;
+        console.log(placeList);
+        setPlace([ ].concat(placeList));
 
-        const totalCount = userList[0] ? userList[0].total : 0;
-        const countList = 5;
+        const totalCount = placeList[0] ? placeList[0].total : 0;
+        const countList = 10;
         const totalPage = Math.ceil(totalCount / countList);
         
         //if (totalPage < filter.page) setFilter({...filter, page : totalPage});
-        const startPage = (Math.floor((filter.page - 1) / 5)) * 5 + 1;
-        // console.log(filter.page);
-        // console.log(startPage);
+        const startPage = (Math.floor((filter.page - 1) / 10)) * 10 + 1;
+        console.log(filter.page);
+        console.log(startPage);
         setPaginate({
             ...paginate, 
             totalPage : totalPage, 
@@ -83,7 +84,7 @@ export default function ManagerListPage( ) {
     // 필터 상태가 바뀔 때 마다 실행 🎈
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(async () => {
-        setManagersByIndexApi();
+        setPlaceByIndexApi();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ filter ]);
 
@@ -92,7 +93,7 @@ export default function ManagerListPage( ) {
     const openEditModalEvent = ( id ) => {
         dispatch({ 
             type : "MODAL_TOGGLE", 
-            payload : { target:"MANAGER", open : true, id : id } 
+            payload : { target:"USER", open : true, id : id, refresh : false } 
         });
     }
 
@@ -109,7 +110,7 @@ export default function ManagerListPage( ) {
         // 통신 실패시 함수 중단
         if( res.status !== 200) return alert("시스템 에러");
         // 매니저리스트 갱신
-        setManagersByIndexApi();
+        setPlaceByIndexApi();
     }
     
     // 첫 페이지 클릭 이벤트
@@ -118,16 +119,16 @@ export default function ManagerListPage( ) {
     }
     // 다음 버튼 클릭 이벤트
     const nextButtonEvent = ( ) => {
-        if(filter.page + 5 <= paginate.totalPage){
-            setFilter({...filter, page: filter.page + 5});
+        if(filter.page + 10 <= paginate.totalPage){
+            setFilter({...filter, page: filter.page + 10});
         }else {
             setFilter({...filter, page: paginate.totalPage});
         }
     }
     // 이전 버튼 클릭 이벤트
     const prevButtonEvent = ( ) => {
-        if(filter.page - 5 >= 1){
-            setFilter({...filter, page : filter.page - 5 });
+        if(filter.page - 10 >= 1){
+            setFilter({...filter, page : filter.page - 10 });
         }else {
             setFilter({...filter, page: 1 });
         }
@@ -155,28 +156,64 @@ export default function ManagerListPage( ) {
                     <div className="filter-wrapper flex justify-between pt-5">
                         <div className="flex ml-3">
                             <div className="flex justify-center items-center border rounded px-3 mr-2">
-                                    <label htmlFor="f-asc">
-                                        <span className="mr-2 text-gray-600">역정렬</span>
-                                        <input name="sort" id="f-asc" type="checkbox"
-                                            onChange={ filterEvent }
-                                        />
-                                    </label>
-                            </div>
-                            <div className="flex justify-center items-center border rounded px-3 mr-2">
-                                <label htmlFor="f-is_verified">
-                                    <span className="mr-2 text-gray-600">미승인</span>
-                                    <input name="isNotVerified" id="f-is_verified" type="checkbox"
+                                <label htmlFor="f-asc">
+                                    <span className="mr-2 text-gray-600">역정렬</span>
+                                    <input name="sort" id="f-asc" type="checkbox"
                                         onChange={ filterEvent }
                                     />
                                 </label>
                             </div>
+                            <div className="flex justify-center items-center border rounded px-3 mr-2">
+                                <span className="mr-2 text-gray-600">장소 종류</span>
+                                <select 
+                                    name="placeCode"
+                                    onChange={ filterEvent }
+                                >
+                                    <option value="">전체</option>
+                                    <option value="1">식당,카페</option>
+                                    <option value="2">병원</option>
+                                    <option value="3">어린이집</option>
+                                    <option value="4">유치원</option>
+                                    <option value="5">키즈카페</option>
+                                    <option value="6">체험관</option>
+                                    <option value="7">유원지</option>
+                                    <option value="8">장난감도서관</option>
+                                    <option value="9">유원지</option>
+                                </select>
+                            </div>
+                            {/* <div className="flex justify-center items-center border rounded px-3 mr-2">
+                                <span className="mr-2 text-gray-600">지역</span>
+                                <select 
+                                    name="address"
+                                    onChange={ filterEvent }
+                                >
+                                    <option value="">모두</option>
+                                    <option value="서울특별시">서울</option>
+                                    <option value="부산광역시">부산</option>
+                                    <option value="대구광역시">대구</option>
+                                    <option value="인천광역시">인천</option>
+                                    <option value="광주광역시">광주</option>
+                                    <option value="대전광역시">대전</option>
+                                    <option value="울산광역시">울산</option>
+                                    <option value="세종">세종</option>
+                                    <option value="경기도">경기도</option>
+                                    <option value="강원도">강원도</option>
+                                    <option value="충청북도">충청북도</option>
+                                    <option value="충청남도">충청남도</option>
+                                    <option value="경상북도">경상북도</option>
+                                    <option value="경상남도">경상남도</option>
+                                    <option value="전라북도">전라북도</option>
+                                    <option value="전라남도">전라남도</option>
+                                    <option value="제주도">제주도</option>
+                                </select>
+                            </div> */}
                         </div>
                         <div className="pr-3">
                             <input type="text" id="&quot;form-subscribe-Subscribe" 
                                 name="search"
                                 className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 py-2 px-4
                                 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent" 
-                                placeholder="search nickname"
+                                placeholder="..장소명, 주소 검색"
                                 value={ filter.search }
                                 onChange={ filterEvent } 
                             />
@@ -188,17 +225,17 @@ export default function ManagerListPage( ) {
                             <thead>
                                 <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                                     <th className="py-3 px-6 text-left">id</th>
-                                    <th className="py-3 px-6 text-left">닉네임</th>
-                                    <th className="py-3 px-6 text-center">email</th>
-                                    <th className="py-3 px-6 text-center">권한</th>
-                                    <th className="py-3 px-6 text-center">인증상태</th>
-                                    <th className="py-3 px-6 text-center">생성일</th>
+                                    <th className="py-3 px-6 text-left">이름</th>
+                                    <th className="py-3 px-6 text-center">주소</th>
+                                    <th className="py-3 px-6 text-center">전화번호</th>
+                                    {/* <th className="py-3 px-6 text-center">위도</th>
+                                    <th className="py-3 px-6 text-center">경도</th> */}
                                     <th className="py-3 px-6 text-center">설정</th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-600 text-sm font-light">
                                 {
-                                    managers.map( (e, index) => {
+                                    place.map( (e, index) => {
                                         return( 
                                             <tr key={index}  className="border-b border-gray-200 hover:bg-gray-100">
                                                 <td className="py-3 px-6 text-left whitespace-nowrap">
@@ -208,33 +245,29 @@ export default function ManagerListPage( ) {
                                                 </td>
                                                 <td className="py-3 px-6 text-left">
                                                     <div className="flex items-center">
-                                                        { e.nickname }
+                                                        { e.name }
                                                     </div>
                                                 </td>
                                                 <td className="py-3 px-6 text-left">
                                                     <div className="flex items-center justify-center">
-                                                        { e.email }
+                                                        { e.address }
                                                     </div>
+                                                </td>
+                                                <td className="py-3 px-6 text-left">
+                                                    <div className="flex items-center justify-center">
+                                                        { e.phone }
+                                                    </div>
+                                                </td>
+                                                {/* <td className="py-3 px-6 text-center">
+                                                    <span className="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs">
+                                                        { e.lat  }
+                                                    </span>
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
                                                     <span className="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs">
-                                                        { e.roles === "SUPER" && "관리자" }
-                                                        { e.roles === "MANAGER" && "매니저" }
-                                                        { e.roles === "GENERAL" && "일반" }
+                                                        { e.lon }
                                                     </span>
-                                                </td>
-                                                <td className="py-3 px-6 text-center">
-                                                    <span className={` ${ e.is_verified === 1 ? "text-blue-400 bg-blue-200" : "text-red-400 bg-red-200"}  py-1 px-3 rounded-full text-xs`}>
-                                                        { 
-                                                            e.is_verified === 1 ? "승인" : "미승인" 
-                                                        }
-                                                    </span>
-                                                </td>
-                                                <td className="py-3 px-6 text-center">
-                                                    <div className="flex items-center justify-center">
-                                                        { e.created_at.split("T")[0] }
-                                                    </div>
-                                                </td>
+                                                </td> */}
                                                 <td className="py-3 px-6 text-center">
                                                     <div className="flex item-center justify-center">
                                                         {/* <div className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110">

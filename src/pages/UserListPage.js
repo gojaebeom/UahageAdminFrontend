@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { index, _delete } from "../apis/manager";
+import { index, _delete } from "../apis/user";
 import { isSuperAdmin } from "../utils/jwt";
 
-export default function ManagerListPage( ) {
-    // 모달창 상태 감지
+export default function UserListPage( ) {
+    // // 모달창 상태 감지
     const modalState = useSelector(state => state.modalReducer);
     useEffect(()=> {
         if( modalState.refresh ) {
-            setManagersByIndexApi();
+            setUsersByIndexApi();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalState]);
 
 
     // 매니저 리스트 상태
-    const [managers, setManagers] = useState([]);
+    const [users, setUsers] = useState([]);
     // 페이징 처리 상태
     const [paginate, setPaginate] = useState({
         totalPage : 0,
@@ -26,9 +26,9 @@ export default function ManagerListPage( ) {
     });
     // 필터링 상태
     const [filter, setFilter] = useState({
-        search : '',
-        asc : false,
-        isNotVerified : false,
+        search : "",
+        babyGender : "",
+        parentAge : "",
         page : 1,
     });
     // 필터 이벤트시 실행 함수
@@ -38,16 +38,17 @@ export default function ManagerListPage( ) {
         // 💡 search 관련 기능은 debounce 방식으로 개선해야함
         if( name === "search") setFilter({...filter, search : value});
         else if( name === "sort") setFilter({...filter, asc : !filter.asc});
-        else if( name === "isNotVerified") setFilter({...filter, isNotVerified : !filter.isNotVerified});
+        else if( name === "babyGender") setFilter({...filter, babyGender : value });
+        else if( name === "parentAge") setFilter({...filter, parentAge : value});
         console.log(filter);
     }
-    // 매니저 리스트 초기화
-    const setManagersByIndexApi = async () => {
+    // 유저 리스트 초기화
+    const setUsersByIndexApi = async () => {
         const res = await index( filter );
         if( res.status !== 200) return alert("시스템 에러");
 
         const userList = res.data.result.data;
-        setManagers([ ].concat(userList));
+        setUsers([ ].concat(userList));
 
         const totalCount = userList[0] ? userList[0].total : 0;
         const countList = 5;
@@ -55,8 +56,8 @@ export default function ManagerListPage( ) {
         
         //if (totalPage < filter.page) setFilter({...filter, page : totalPage});
         const startPage = (Math.floor((filter.page - 1) / 5)) * 5 + 1;
-        // console.log(filter.page);
-        // console.log(startPage);
+        console.log(filter.page);
+        console.log(startPage);
         setPaginate({
             ...paginate, 
             totalPage : totalPage, 
@@ -83,7 +84,7 @@ export default function ManagerListPage( ) {
     // 필터 상태가 바뀔 때 마다 실행 🎈
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(async () => {
-        setManagersByIndexApi();
+        setUsersByIndexApi();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ filter ]);
 
@@ -92,7 +93,7 @@ export default function ManagerListPage( ) {
     const openEditModalEvent = ( id ) => {
         dispatch({ 
             type : "MODAL_TOGGLE", 
-            payload : { target:"MANAGER", open : true, id : id } 
+            payload : { target:"USER", open : true, id : id, refresh : false } 
         });
     }
 
@@ -109,7 +110,7 @@ export default function ManagerListPage( ) {
         // 통신 실패시 함수 중단
         if( res.status !== 200) return alert("시스템 에러");
         // 매니저리스트 갱신
-        setManagersByIndexApi();
+        setUsersByIndexApi();
     }
     
     // 첫 페이지 클릭 이벤트
@@ -155,20 +156,51 @@ export default function ManagerListPage( ) {
                     <div className="filter-wrapper flex justify-between pt-5">
                         <div className="flex ml-3">
                             <div className="flex justify-center items-center border rounded px-3 mr-2">
-                                    <label htmlFor="f-asc">
-                                        <span className="mr-2 text-gray-600">역정렬</span>
-                                        <input name="sort" id="f-asc" type="checkbox"
-                                            onChange={ filterEvent }
-                                        />
-                                    </label>
-                            </div>
-                            <div className="flex justify-center items-center border rounded px-3 mr-2">
-                                <label htmlFor="f-is_verified">
-                                    <span className="mr-2 text-gray-600">미승인</span>
-                                    <input name="isNotVerified" id="f-is_verified" type="checkbox"
+                                <label htmlFor="f-asc">
+                                    <span className="mr-2 text-gray-600">역정렬</span>
+                                    <input name="sort" id="f-asc" type="checkbox"
                                         onChange={ filterEvent }
                                     />
                                 </label>
+                            </div>
+                            
+                            <div className="flex justify-center items-center border rounded px-3 mr-2">
+                                <span className="mr-2 text-gray-600">유아 성별</span>
+                                <label htmlFor="bg-a" className="cursor-pointer mr-2">
+                                    <span>모두</span>
+                                    <input id="bg-a" type="radio" name="babyGender" value=""
+                                        onChange={ filterEvent }
+                                        defaultChecked
+                                    />
+                                </label>
+                                <label htmlFor="bg-m" className="cursor-pointer mr-2">
+                                    <span>남</span>
+                                    <input id="bg-m" type="radio" name="babyGender" value="M"
+                                        onChange={ filterEvent }
+                                    />
+                                </label>
+                                <label htmlFor="bg-f" className="cursor-pointer">
+                                    <span>여</span>
+                                    <input id="bg-f" type="radio" name="babyGender" value="F"
+                                        onChange={ filterEvent }
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="flex justify-center items-center border rounded px-3 mr-2">
+                                <span className="mr-2 text-gray-600">회원 연령대</span>
+                                <select 
+                                    name="parentAge"
+                                    onChange={ filterEvent }
+                                >
+                                    <option value="">모두</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                    <option value="40">40</option>
+                                    <option value="50">50</option>
+                                    <option value="60">기타</option>
+                                </select>
                             </div>
                         </div>
                         <div className="pr-3">
@@ -190,15 +222,16 @@ export default function ManagerListPage( ) {
                                     <th className="py-3 px-6 text-left">id</th>
                                     <th className="py-3 px-6 text-left">닉네임</th>
                                     <th className="py-3 px-6 text-center">email</th>
-                                    <th className="py-3 px-6 text-center">권한</th>
-                                    <th className="py-3 px-6 text-center">인증상태</th>
-                                    <th className="py-3 px-6 text-center">생성일</th>
+                                    <th className="py-3 px-6 text-center">회원 연령대</th>
+                                    <th className="py-3 px-6 text-center">유아 성별</th>
+                                    <th className="py-3 px-6 text-center">유아 생일</th>
+                                    <th className="py-3 px-6 text-center">회원가입일</th>
                                     <th className="py-3 px-6 text-center">설정</th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-600 text-sm font-light">
                                 {
-                                    managers.map( (e, index) => {
+                                    users.map( (e, index) => {
                                         return( 
                                             <tr key={index}  className="border-b border-gray-200 hover:bg-gray-100">
                                                 <td className="py-3 px-6 text-left whitespace-nowrap">
@@ -218,16 +251,18 @@ export default function ManagerListPage( ) {
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
                                                     <span className="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs">
-                                                        { e.roles === "SUPER" && "관리자" }
-                                                        { e.roles === "MANAGER" && "매니저" }
-                                                        { e.roles === "GENERAL" && "일반" }
+                                                        { e.parent_age  }
+                                                    </span>
+                                                </td>
+                                                <td className="py-3 px-6 text-center">
+                                                    <span className="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs">
+                                                        { e.baby_gender === 'F' && '여' }
+                                                        { e.baby_gender === 'M' && '남' }
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-6 text-center">
                                                     <span className={` ${ e.is_verified === 1 ? "text-blue-400 bg-blue-200" : "text-red-400 bg-red-200"}  py-1 px-3 rounded-full text-xs`}>
-                                                        { 
-                                                            e.is_verified === 1 ? "승인" : "미승인" 
-                                                        }
+                                                        { e.baby_birthday }
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-6 text-center">

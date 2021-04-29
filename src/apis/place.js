@@ -3,8 +3,8 @@ import { DOMAIN } from "../settingProxy";
 
 const jwtToken = sessionStorage.getItem("ut");
 
-export function index({ search, asc, page, isNotVerified }) {
-    let pathname = `/api/admin/managers?`;
+export function index({ search, asc, page, placeCode }) {
+    let pathname = `/api/admin/places?`;
     if( search !== "") pathname += `search=${ search }`;
     if( page ){
         ( search !== "" ) ? 
@@ -16,10 +16,10 @@ export function index({ search, asc, page, isNotVerified }) {
         pathname += `&sort=asc` : 
         pathname += `sort=asc`;
     }
-    if( isNotVerified ){
+    if( placeCode !== "" ){
         ( search !== "" || page || asc ) ?
-        pathname += `&iv=0` :
-        pathname += `iv=0`;
+        pathname += `&pc=${placeCode}` :
+        pathname += `pc=${placeCode}`;
     }
 
     console.log(`최종 pathname : ${ pathname }`);
@@ -38,7 +38,7 @@ export function index({ search, asc, page, isNotVerified }) {
 }
 
 export function show( id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/places/${id}`;
     return axios.get(DOMAIN + pathname, {
         headers: {
             'Authorization' : jwtToken
@@ -53,7 +53,7 @@ export function show( id ){
 }
 
 export function update( body, id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/places/${id}`;
     return axios.put(DOMAIN + pathname, body, {
         headers: {
             'Content-Type' : 'application/json',
@@ -69,7 +69,7 @@ export function update( body, id ){
 }
 
 export function _delete( id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/places/${id}`;
     return axios.delete( DOMAIN + pathname, {
         headers: {
             'Authorization' : jwtToken

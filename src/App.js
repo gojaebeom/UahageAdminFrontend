@@ -9,8 +9,8 @@ import SignLayout from "./layouts/SignLayout";
 // pages ✨
 import DashboardPage from "./pages/DashboardPage";
 import SigninPage from "./pages/SigninPage";
-import PlacePage from "./pages/PlacePage";
-import UserPage from "./pages/UserPage";
+import PlaceListPage from "./pages/PlaceListPage";
+import UserListPage from "./pages/UserListPage";
 import ManagerListPage from "./pages/ManagerListPage";
 
 // assets 🎁
@@ -23,13 +23,14 @@ import { tokenValidation } from "./utils/jwt";
 // redux lib 🎈
 import { useSelector, useDispatch } from "react-redux";
 import ManagerDetailModal from "./containers/ManagerDetailModal";
+import UserDetailModal from "./containers/UserDetailModal";
 
 function App( ) {
 	const despatch = useDispatch();
     // 로그인 상태 가져오기
     const isLoggedIn = useSelector( state => state.isLoggedInReducer );
 	// 매니저 모달 상태 가져오기
-    const managerModalState = useSelector( state => state.managerModalReducer );
+    const modalState = useSelector( state => state.modalReducer );
 
 	// 토큰의 상태가 변경될 때 마다 실행
 	useEffect(()=> {
@@ -37,19 +38,25 @@ function App( ) {
 		despatch({type:"IS_LOGGED_IN", payload: true}) :
 		despatch({type:"IS_LOGGED_IN", payload: false});
 	}, [despatch, isLoggedIn]);
-
+	
 	return (
 	<div className="App">
 		{
 			// 매니저 모달 창 상태에 따라 보이기
-			managerModalState.open && <ManagerDetailModal />
+			( modalState.open && modalState.target === "MANAGER" ) 
+			&& <ManagerDetailModal />
+		}
+		{
+			// 유저 모달 창 상태에 따라 보이기
+			( modalState.open && modalState.target === "USER" ) 
+			&& <UserDetailModal />
 		}
 		<Switch>
 			<Route exact path="/signin">
 				{
 					!isLoggedIn ? 
 					<SignLayout
-					title="우아하게 CMS"
+						title="우아하게 CMS"
 					>	
 					<SigninPage />
 					</SignLayout> : 
@@ -80,7 +87,7 @@ function App( ) {
 				{
 					isLoggedIn ? 
 					<DefaultLayout title="회원 관리">
-						<UserPage />
+						<UserListPage />
 					</DefaultLayout>: 
 					<Redirect to="/signin" />
 				}
@@ -89,7 +96,7 @@ function App( ) {
 				{
 					isLoggedIn ? 
 					<DefaultLayout title="장소 관리">
-						<PlacePage />
+						<PlaceListPage />
 					</DefaultLayout>: 
 					<Redirect to="/signin" />
 				}

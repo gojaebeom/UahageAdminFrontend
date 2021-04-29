@@ -3,8 +3,8 @@ import { DOMAIN } from "../settingProxy";
 
 const jwtToken = sessionStorage.getItem("ut");
 
-export function index({ search, asc, page, isNotVerified }) {
-    let pathname = `/api/admin/managers?`;
+export function index({ search, asc, page, babyGender, parentAge }) {
+    let pathname = `/api/admin/users?`;
     if( search !== "") pathname += `search=${ search }`;
     if( page ){
         ( search !== "" ) ? 
@@ -16,10 +16,15 @@ export function index({ search, asc, page, isNotVerified }) {
         pathname += `&sort=asc` : 
         pathname += `sort=asc`;
     }
-    if( isNotVerified ){
+    if( babyGender !== "" ){
         ( search !== "" || page || asc ) ?
-        pathname += `&iv=0` :
-        pathname += `iv=0`;
+        pathname += `&bg=${babyGender}` :
+        pathname += `bg=${babyGender}`;
+    }
+    if( parentAge !== "" ){
+        ( search !== "" || page || asc || babyGender ) ?
+        pathname += `&pa=${parentAge}` :
+        pathname += `pa=${parentAge}`;
     }
 
     console.log(`최종 pathname : ${ pathname }`);
@@ -38,7 +43,7 @@ export function index({ search, asc, page, isNotVerified }) {
 }
 
 export function show( id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/users/${id}`;
     return axios.get(DOMAIN + pathname, {
         headers: {
             'Authorization' : jwtToken
@@ -53,7 +58,7 @@ export function show( id ){
 }
 
 export function update( body, id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/users/${id}`;
     return axios.put(DOMAIN + pathname, body, {
         headers: {
             'Content-Type' : 'application/json',
@@ -69,7 +74,7 @@ export function update( body, id ){
 }
 
 export function _delete( id ){
-    let pathname = `/api/admin/managers/${id}`;
+    let pathname = `/api/admin/users/${id}`;
     return axios.delete( DOMAIN + pathname, {
         headers: {
             'Authorization' : jwtToken

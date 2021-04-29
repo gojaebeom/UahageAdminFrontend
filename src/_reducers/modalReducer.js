@@ -1,12 +1,12 @@
-const managerState = {
+const modalState = {
+    target : "MANAGER",
     open : false, 
-    managerId : 1,
+    id : 1,
     refrash : false
 }
-
-export function managerModalReducer(state=managerState, action){
+export function modalReducer(state=modalState, action){
     switch( action.type ) {
-        case "MANAGER_MODAL_TOGGLE" :
+        case "MODAL_TOGGLE" :
             return action.payload;
         default : 
             return state;
